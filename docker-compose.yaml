@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  main:
+    build:
+      context: .
+    depends_on:
+      - redis
+    environment:
+      - GITHUB_REPO
+      - SLACK_WEBHOOK_URL
+    restart: always
+  redis:
+    entrypoint: ["redis-server", "--appendonly", "yes"]
+    image: redis:6-alpine
+    restart: always
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
+volumes:
+  redis-data:
