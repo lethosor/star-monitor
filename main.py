@@ -1,4 +1,4 @@
-import os, redis, requests, signal, threading, time, traceback
+import itertools, os, redis, requests, signal, threading, time, traceback
 redis_client = redis.Redis("redis")
 
 skipping = threading.Event()
@@ -34,7 +34,13 @@ if not slack_url.startswith("https://"):
 
 def scan(*, noun, redis_key, api_route, name_key):
     first_run = not redis_client.exists(redis_key)
-    res = requests.get(f"https://api.github.com/repos/{repo}/{api_route}", params={"per_page": 100}).json()
+    res = []
+    page_size = 100
+    for page in itertools.count(1):
+        page_res = requests.get(f"https://api.github.com/repos/{repo}/{api_route}", params={"per_page": page_size, "page": page}).json()
+        res += page_res
+        if len(page_res) < page_size:
+            break
     print(f"{api_route}: fetched {len(res)} results")
     new_users = [u for u in res
         if redis_client.sadd(redis_key, u[name_key])]
