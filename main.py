@@ -52,7 +52,7 @@ def scan(*, noun, redis_key, api_route, name_key):
     if new_users and not first_run:
         user_text = ", ".join(f"<{u['html_url']}|{u[name_key]}>" for u in new_users)
         desc_text = f"{len(new_users)} new {noun}s" if len(new_users) > 1 else f"New {noun}"
-        message = {"text": f"{desc_text}: {user_text}"}
+        message = {"text": f"[{repo}] {desc_text}: {user_text}"}
         requests.post(slack_url, json=message)
 
 while True:
